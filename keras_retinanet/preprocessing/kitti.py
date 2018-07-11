@@ -76,9 +76,10 @@ class KittiGenerator(Generator):
         1    rotation_y   Rotation ry around Y-axis in camera coordinates [-pi..pi]
         """
 
-        self.id_to_labels = {}
-        for label, id in kitti_classes.items():
-            self.id_to_labels[id] = label
+        self.labels = {}
+        self.classes = kitti_classes
+        for name, label in self.classes.items():
+            self.labels[label] = name
 
         self.image_data = dict()
         self.images = []
@@ -114,15 +115,25 @@ class KittiGenerator(Generator):
         """
         return max(kitti_classes.values()) + 1
 
+    def has_label(self, label):
+        """ Return True if label is a known label.
+        """
+        return label in self.labels
+
+    def has_name(self, name):
+        """ Returns True if name is a known class.
+        """
+        return name in self.classes
+
     def name_to_label(self, name):
         """ Map name to label.
         """
-        raise NotImplementedError()
+        raise self.classes[name]
 
     def label_to_name(self, label):
         """ Map label to name.
         """
-        return self.id_to_labels[label]
+        return self.labels[label]
 
     def image_aspect_ratio(self, image_index):
         """ Compute the aspect ratio for an image with image_index.
