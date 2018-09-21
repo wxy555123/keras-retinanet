@@ -159,7 +159,7 @@ class PascalVocGenerator(Generator):
     def __parse_annotations(self, xml_root):
         """ Parse all annotations under the xml_root.
         """
-        boxes = np.zeros((0, 5))
+        annotations = {'labels': np.empty((len(xml_root.findall('object')),)), 'bboxes': np.empty((len(xml_root.findall('object')), 4))}
         for i, element in enumerate(xml_root.iter('object')):
             try:
                 truncated, difficult, box = self.__parse_annotation(element)
@@ -170,9 +170,11 @@ class PascalVocGenerator(Generator):
                 continue
             if difficult and self.skip_difficult:
                 continue
-            boxes = np.append(boxes, box, axis=0)
 
-        return boxes
+            annotations['bboxes'][i, :] = box[:4]
+            annotations['labels'][i] = box[4]
+
+        return annotations
 
     def load_annotations(self, image_index):
         """ Load annotations for an image_index.
